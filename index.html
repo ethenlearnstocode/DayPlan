@@ -63,9 +63,31 @@
       letter-spacing: -0.5px;
     }
 
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
     .tagline {
       font-size: 0.85rem;
       color: #475569;
+    }
+
+    .reset-week-btn {
+      background: #ef4444;
+      color: white;
+      border: none;
+      padding: 8px 12px;
+      border-radius: 6px;
+      font-weight: 600;
+      font-size: 0.85rem;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .reset-week-btn:hover {
+      background: #dc2626;
     }
 
     /* Floating Side Tutorial Button */
@@ -174,59 +196,6 @@
       color: #475569;
       line-height: 1.4;
       margin-bottom: 10px;
-    }
-
-    /* Mockup Visuals for Steps */
-    .step-mockup {
-      background: #ffffff;
-      border: 1px solid #cbd5e1;
-      border-radius: 6px;
-      padding: 8px;
-      font-size: 0.8rem;
-    }
-
-    .mock-inputs {
-      display: flex;
-      gap: 4px;
-      margin-top: 4px;
-    }
-
-    .mock-input {
-      background: #f1f5f9;
-      border: 1px solid #cbd5e1;
-      height: 20px;
-      border-radius: 4px;
-      flex: 1;
-    }
-
-    .mock-btn-add {
-      background: #2563eb;
-      color: white;
-      font-size: 0.7rem;
-      padding: 2px 8px;
-      border-radius: 4px;
-      text-align: center;
-      font-weight: bold;
-    }
-
-    .mock-btn-tick {
-      background: #f0fdf4;
-      border: 1px solid #bbf7d0;
-      color: #166534;
-      font-weight: bold;
-      padding: 4px 8px;
-      border-radius: 4px;
-      display: inline-block;
-    }
-
-    .mock-btn-cross {
-      background: #fef2f2;
-      border: 1px solid #fecaca;
-      color: #991b1b;
-      font-weight: bold;
-      padding: 4px 8px;
-      border-radius: 4px;
-      display: inline-block;
     }
 
     .overlay {
@@ -451,7 +420,9 @@
       <div class="brand-logo">D</div>
       <div class="brand-name">DayPlan</div>
     </div>
-    <div class="tagline">Structure your day • Track your wins</div>
+    <div class="header-actions">
+      <button class="reset-week-btn" onclick="resetWeek()">🔄 Reset Week</button>
+    </div>
   </header>
 
   <!-- Side Tutorial Trigger Button -->
@@ -474,41 +445,24 @@
         <span class="step-number">STEP 1</span>
         <div class="step-title">Select a Day & Enter Task</div>
         <div class="step-desc">Locate the day column (Monday–Sunday) and type your task description into the input box.</div>
-        <div class="step-mockup">
-          <div class="mock-input" style="padding: 2px 4px;">Task description...</div>
-        </div>
       </div>
 
       <div class="tutorial-step">
         <span class="step-number">STEP 2</span>
         <div class="step-title">Set Start & Finish Times</div>
         <div class="step-desc">Pick your planned start time and end time to block out your schedule.</div>
-        <div class="step-mockup">
-          <div class="mock-inputs">
-            <div class="mock-input"></div>
-            <span>to</span>
-            <div class="mock-input"></div>
-            <div class="mock-btn-add">Add</div>
-          </div>
-        </div>
       </div>
 
       <div class="tutorial-step">
         <span class="step-number">STEP 3</span>
         <div class="step-title">Tick Off Wins (✓)</div>
         <div class="step-desc">When you finish a task, click the green tick button. It marks the card green and displays a celebratory message!</div>
-        <div class="step-mockup">
-          <div class="mock-btn-tick">✓ Finished!</div>
-        </div>
       </div>
 
       <div class="tutorial-step">
         <span class="step-number">STEP 4</span>
         <div class="step-title">Mark Missed Tasks (✕)</div>
         <div class="step-desc">If you couldn't complete a task, click the red cross button. Type why it failed in the popup, and DayPlan logs your reflection.</div>
-        <div class="step-mockup">
-          <div class="mock-btn-cross">✕ Missed task</div>
-        </div>
       </div>
 
     </div>
@@ -633,6 +587,13 @@
     function deleteTask(day, index) {
       schedule[day].splice(index, 1);
       saveAndRender();
+    }
+
+    function resetWeek() {
+      if (confirm("Are you sure you want to clear all tasks for the week?")) {
+        schedule = { Monday: [], Tuesday: [], Wednesday: [], Thursday: [], Friday: [], Saturday: [], Sunday: [] };
+        saveAndRender();
+      }
     }
 
     function toggleTutorial(open) {

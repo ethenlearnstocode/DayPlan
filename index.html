@@ -1,0 +1,658 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DayPlan — Weekly Planner</title>
+  <style>
+    /* Reset and Core Styles */
+    * { 
+      box-sizing: border-box; 
+      margin: 0; 
+      padding: 0; 
+      font-family: system-ui, -apple-system, sans-serif; 
+    }
+
+    body { 
+      color: #333; 
+      padding-bottom: 40px;
+      min-height: 100vh;
+      background: linear-gradient(135deg, #a78bfa 0%, #60a5fa 50%, #2dd4bf 100%);
+      background-attachment: fixed;
+    }
+    
+    /* App Header */
+    header {
+      background: rgba(255, 255, 255, 0.9);
+      backdrop-filter: blur(5px);
+      border-bottom: 1px solid #e2e8f0;
+      padding: 16px 24px;
+      margin-bottom: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .brand-logo {
+      width: 32px;
+      height: 32px;
+      background: #2563eb;
+      color: white;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 1.1rem;
+    }
+
+    .brand-name {
+      font-size: 1.3rem;
+      font-weight: 800;
+      color: #0f172a;
+      letter-spacing: -0.5px;
+    }
+
+    .tagline {
+      font-size: 0.85rem;
+      color: #475569;
+    }
+
+    /* Floating Side Tutorial Button */
+    .tutorial-trigger-btn {
+      position: fixed;
+      right: 0;
+      top: 50%;
+      transform: translateY(-50%);
+      background: #0f172a;
+      color: #ffffff;
+      border: none;
+      padding: 12px 16px;
+      border-top-left-radius: 12px;
+      border-bottom-left-radius: 12px;
+      cursor: pointer;
+      font-weight: 700;
+      box-shadow: -4px 4px 12px rgba(0,0,0,0.15);
+      z-index: 200;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.2s ease;
+    }
+
+    .tutorial-trigger-btn:hover {
+      background: #2563eb;
+      padding-right: 20px;
+    }
+
+    /* Tutorial Sidebar Drawer */
+    .tutorial-drawer {
+      position: fixed;
+      top: 0;
+      right: -420px;
+      width: 380px;
+      height: 100vh;
+      background: #ffffff;
+      box-shadow: -10px 0 25px rgba(0,0,0,0.2);
+      z-index: 300;
+      transition: right 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      display: flex;
+      flex-direction: column;
+      overflow-y: auto;
+    }
+
+    .tutorial-drawer.open {
+      right: 0;
+    }
+
+    .drawer-header {
+      padding: 20px;
+      background: #0f172a;
+      color: #ffffff;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .drawer-header h2 {
+      font-size: 1.2rem;
+      font-weight: 700;
+    }
+
+    .close-btn {
+      background: none;
+      border: none;
+      color: #ffffff;
+      font-size: 1.2rem;
+      cursor: pointer;
+    }
+
+    .drawer-body {
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .tutorial-step {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      padding: 14px;
+    }
+
+    .step-number {
+      display: inline-block;
+      background: #2563eb;
+      color: white;
+      font-size: 0.75rem;
+      font-weight: 800;
+      padding: 2px 8px;
+      border-radius: 12px;
+      margin-bottom: 6px;
+    }
+
+    .step-title {
+      font-weight: 700;
+      font-size: 0.95rem;
+      margin-bottom: 6px;
+      color: #0f172a;
+    }
+
+    .step-desc {
+      font-size: 0.85rem;
+      color: #475569;
+      line-height: 1.4;
+      margin-bottom: 10px;
+    }
+
+    /* Mockup Visuals for Steps */
+    .step-mockup {
+      background: #ffffff;
+      border: 1px solid #cbd5e1;
+      border-radius: 6px;
+      padding: 8px;
+      font-size: 0.8rem;
+    }
+
+    .mock-inputs {
+      display: flex;
+      gap: 4px;
+      margin-top: 4px;
+    }
+
+    .mock-input {
+      background: #f1f5f9;
+      border: 1px solid #cbd5e1;
+      height: 20px;
+      border-radius: 4px;
+      flex: 1;
+    }
+
+    .mock-btn-add {
+      background: #2563eb;
+      color: white;
+      font-size: 0.7rem;
+      padding: 2px 8px;
+      border-radius: 4px;
+      text-align: center;
+      font-weight: bold;
+    }
+
+    .mock-btn-tick {
+      background: #f0fdf4;
+      border: 1px solid #bbf7d0;
+      color: #166534;
+      font-weight: bold;
+      padding: 4px 8px;
+      border-radius: 4px;
+      display: inline-block;
+    }
+
+    .mock-btn-cross {
+      background: #fef2f2;
+      border: 1px solid #fecaca;
+      color: #991b1b;
+      font-weight: bold;
+      padding: 4px 8px;
+      border-radius: 4px;
+      display: inline-block;
+    }
+
+    .overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(0,0,0,0.3);
+      z-index: 250;
+      display: none;
+    }
+
+    .overlay.active {
+      display: block;
+    }
+    
+    /* Planner Grid */
+    .planner-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 16px;
+      max-width: 1800px;
+      margin: 0 auto;
+      padding: 0 20px;
+    }
+    
+    .day-card {
+      background: rgba(255, 255, 255, 0.95);
+      border-radius: 12px;
+      padding: 16px;
+      box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05);
+      display: flex;
+      flex-direction: column;
+      max-height: 85vh;
+      border: 1px solid #e2e8f0;
+    }
+    
+    .day-title {
+      font-size: 1.1rem;
+      font-weight: 700;
+      margin-bottom: 12px;
+      padding-bottom: 8px;
+      border-bottom: 2px solid #e2e8f0;
+      color: #0f172a;
+    }
+    
+    /* Input Form Styles */
+    .task-form {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      margin-bottom: 14px;
+      background: #f8fafc;
+      padding: 10px;
+      border-radius: 8px;
+      border: 1px solid #e2e8f0;
+    }
+    
+    .task-form input[type="text"] {
+      width: 100%;
+      padding: 8px;
+      border: 1px solid #cbd5e1;
+      border-radius: 6px;
+      outline: none;
+    }
+    
+    .time-inputs {
+      display: flex;
+      gap: 6px;
+      align-items: center;
+    }
+    
+    .time-inputs input[type="time"] {
+      flex: 1;
+      padding: 6px;
+      border: 1px solid #cbd5e1;
+      border-radius: 6px;
+      font-size: 0.85rem;
+    }
+
+    .time-inputs span {
+      font-size: 0.8rem;
+      color: #64748b;
+    }
+    
+    .add-btn {
+      padding: 8px;
+      background: #2563eb;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 600;
+      margin-top: 2px;
+      transition: background 0.2s;
+    }
+
+    .add-btn:hover { background: #1d4ed8; }
+    
+    /* Task List & Item Styles */
+    .task-list {
+      list-style: none;
+      overflow-y: auto;
+      flex: 1;
+    }
+    
+    .task-item {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      padding: 10px;
+      border-radius: 8px;
+      margin-bottom: 8px;
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      transition: all 0.2s ease;
+    }
+
+    .task-item.status-completed {
+      background: #f0fdf4;
+      border-color: #bbf7d0;
+    }
+
+    .task-item.status-completed .task-title {
+      text-decoration: line-through;
+      color: #166534;
+    }
+
+    .task-item.status-failed {
+      background: #fef2f2;
+      border-color: #fecaca;
+    }
+
+    .task-item.status-failed .task-title {
+      text-decoration: line-through;
+      color: #991b1b;
+    }
+
+    .task-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+    }
+
+    .task-title {
+      font-weight: 600;
+      word-break: break-word;
+      font-size: 0.95rem;
+    }
+
+    .task-time-badge {
+      font-size: 0.75rem;
+      color: #475569;
+      background: #f1f5f9;
+      padding: 2px 6px;
+      border-radius: 4px;
+      width: fit-content;
+    }
+
+    /* Feedback Displays */
+    .feedback-note {
+      font-size: 0.8rem;
+      padding: 4px 8px;
+      border-radius: 4px;
+      margin-top: 2px;
+      font-style: italic;
+    }
+
+    .feedback-success {
+      background: #dcfce7;
+      color: #15803d;
+      font-weight: 600;
+    }
+
+    .feedback-reason {
+      background: #fee2e2;
+      color: #b91c1c;
+    }
+
+    /* Actions Bar */
+    .task-actions {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-top: 4px;
+    }
+
+    .status-btn {
+      border: 1px solid #cbd5e1;
+      background: #ffffff;
+      border-radius: 4px;
+      padding: 4px 8px;
+      cursor: pointer;
+      font-size: 0.85rem;
+      font-weight: bold;
+    }
+
+    .btn-tick { color: #16a34a; }
+    .btn-tick.active { background: #16a34a; color: white; border-color: #16a34a; }
+
+    .btn-cross { color: #dc2626; }
+    .btn-cross.active { background: #dc2626; color: white; border-color: #dc2626; }
+
+    .delete-btn {
+      margin-left: auto;
+      background: none;
+      border: none;
+      color: #94a3b8;
+      cursor: pointer;
+      font-size: 0.9rem;
+    }
+
+    .delete-btn:hover { color: #ef4444; }
+  </style>
+</head>
+<body>
+
+  <!-- App Header -->
+  <header>
+    <div class="brand">
+      <div class="brand-logo">D</div>
+      <div class="brand-name">DayPlan</div>
+    </div>
+    <div class="tagline">Structure your day • Track your wins</div>
+  </header>
+
+  <!-- Side Tutorial Trigger Button -->
+  <button class="tutorial-trigger-btn" onclick="toggleTutorial(true)">
+    ❓ How to Use
+  </button>
+
+  <!-- Background Dim Overlay -->
+  <div class="overlay" id="overlay" onclick="toggleTutorial(false)"></div>
+
+  <!-- Tutorial Side Drawer -->
+  <div class="tutorial-drawer" id="tutorialDrawer">
+    <div class="drawer-header">
+      <h2>How to Use DayPlan</h2>
+      <button class="close-btn" onclick="toggleTutorial(false)">✕</button>
+    </div>
+    <div class="drawer-body">
+
+      <div class="tutorial-step">
+        <span class="step-number">STEP 1</span>
+        <div class="step-title">Select a Day & Enter Task</div>
+        <div class="step-desc">Locate the day column (Monday–Sunday) and type your task description into the input box.</div>
+        <div class="step-mockup">
+          <div class="mock-input" style="padding: 2px 4px;">Task description...</div>
+        </div>
+      </div>
+
+      <div class="tutorial-step">
+        <span class="step-number">STEP 2</span>
+        <div class="step-title">Set Start & Finish Times</div>
+        <div class="step-desc">Pick your planned start time and end time to block out your schedule.</div>
+        <div class="step-mockup">
+          <div class="mock-inputs">
+            <div class="mock-input"></div>
+            <span>to</span>
+            <div class="mock-input"></div>
+            <div class="mock-btn-add">Add</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="tutorial-step">
+        <span class="step-number">STEP 3</span>
+        <div class="step-title">Tick Off Wins (✓)</div>
+        <div class="step-desc">When you finish a task, click the green tick button. It marks the card green and displays a celebratory message!</div>
+        <div class="step-mockup">
+          <div class="mock-btn-tick">✓ Finished!</div>
+        </div>
+      </div>
+
+      <div class="tutorial-step">
+        <span class="step-number">STEP 4</span>
+        <div class="step-title">Mark Missed Tasks (✕)</div>
+        <div class="step-desc">If you couldn't complete a task, click the red cross button. Type why it failed in the popup, and DayPlan logs your reflection.</div>
+        <div class="step-mockup">
+          <div class="mock-btn-cross">✕ Missed task</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Planner Columns -->
+  <div class="planner-grid" id="plannerGrid"></div>
+
+  <script>
+    const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+    
+    let schedule = JSON.parse(localStorage.getItem('dayplanDataBg')) || {
+      Monday: [], Tuesday: [], Wednesday: [], Thursday: [], Friday: [], Saturday: [], Sunday: []
+    };
+
+    function renderPlanner() {
+      const grid = document.getElementById('plannerGrid');
+      grid.innerHTML = '';
+
+      days.forEach(day => {
+        const card = document.createElement('div');
+        card.className = 'day-card';
+        card.innerHTML = `
+          <div class="day-title">${day}</div>
+          
+          <div class="task-form">
+            <input type="text" id="text-${day}" placeholder="Task description...">
+            <div class="time-inputs">
+              <input type="time" id="start-${day}">
+              <span>to</span>
+              <input type="time" id="end-${day}">
+            </div>
+            <button class="add-btn" onclick="addTask('${day}')">Add Task</button>
+          </div>
+
+          <ul class="task-list">
+            ${schedule[day].map((task, index) => `
+              <li class="task-item status-${task.status}">
+                <div class="task-header">
+                  <span class="task-title">${task.text}</span>
+                  <button class="delete-btn" onclick="deleteTask('${day}', ${index})" title="Delete task">✕</button>
+                </div>
+                ${(task.startTime || task.endTime) ? `
+                  <div class="task-time-badge">
+                    🕒 ${task.startTime || '--:--'} - ${task.endTime || '--:--'}
+                  </div>
+                ` : ''}
+
+                ${task.status === 'completed' ? `
+                  <div class="feedback-note feedback-success">
+                    🌟 Good job completing this task!
+                  </div>
+                ` : ''}
+
+                ${task.status === 'failed' && task.reason ? `
+                  <div class="feedback-note feedback-reason">
+                    💬 Reason: ${task.reason}
+                  </div>
+                ` : ''}
+
+                <div class="task-actions">
+                  <button 
+                    class="status-btn btn-tick ${task.status === 'completed' ? 'active' : ''}" 
+                    onclick="handleTick('${day}', ${index})"
+                    title="Mark Completed">✓</button>
+                  <button 
+                    class="status-btn btn-cross ${task.status === 'failed' ? 'active' : ''}" 
+                    onclick="handleCross('${day}', ${index})"
+                    title="Mark Failed">✕</button>
+                </div>
+              </li>
+            `).join('')}
+          </ul>
+        `;
+        grid.appendChild(card);
+      });
+    }
+
+    function addTask(day) {
+      const textInput = document.getElementById(`text-${day}`);
+      const startInput = document.getElementById(`start-${day}`);
+      const endInput = document.getElementById(`end-${day}`);
+
+      const text = textInput.value.trim();
+      if (!text) return;
+
+      schedule[day].push({
+        text: text,
+        startTime: startInput.value,
+        endTime: endInput.value,
+        status: 'pending',
+        reason: ''
+      });
+
+      saveAndRender();
+    }
+
+    function handleTick(day, index) {
+      const task = schedule[day][index];
+      if (task.status === 'completed') {
+        task.status = 'pending';
+      } else {
+        task.status = 'completed';
+        task.reason = '';
+      }
+      saveAndRender();
+    }
+
+    function handleCross(day, index) {
+      const task = schedule[day][index];
+      if (task.status === 'failed') {
+        task.status = 'pending';
+        task.reason = '';
+      } else {
+        const reason = prompt(`What caused you to miss or fail "${task.text}" today?`);
+        task.status = 'failed';
+        task.reason = reason ? reason.trim() : 'No reason provided';
+      }
+      saveAndRender();
+    }
+
+    function deleteTask(day, index) {
+      schedule[day].splice(index, 1);
+      saveAndRender();
+    }
+
+    function toggleTutorial(open) {
+      const drawer = document.getElementById('tutorialDrawer');
+      const overlay = document.getElementById('overlay');
+      if (open) {
+        drawer.classList.add('open');
+        overlay.classList.add('active');
+      } else {
+        drawer.classList.remove('open');
+        overlay.classList.remove('active');
+      }
+    }
+
+    function saveAndRender() {
+      localStorage.setItem('dayplanDataBg', JSON.stringify(schedule));
+      renderPlanner();
+    }
+
+    renderPlanner();
+  </script>
+</body>
+</html>

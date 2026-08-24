@@ -1,15 +1,17 @@
 {
-  "name": "DayPlan",
+  "name": "DayPlan — Weekly Planner",
   "short_name": "DayPlan",
   "start_url": "./index.html",
+  "scope": "./",
   "display": "standalone",
   "background_color": "#0f172a",
   "theme_color": "#2563eb",
   "icons": [
     {
-      "src": "https://cdn-icons-png.flaticon.com/512/3652/3652191.png",
+      "src": "https://cdn-icons-png.flaticon.com/512/2693/2693507.png",
       "sizes": "512x512",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
     }
   ]
 }

@@ -3,7 +3,15 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="manifest" href="manifest.json">
+  
+  <!-- Relative Manifest and PWA Meta Tags -->
+  <link rel="manifest" href="./manifest.json">
+  <meta name="theme-color" content="#2563eb">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="DayPlan">
+  <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/2693/2693507.png">
+
   <title>DayPlan — Weekly Planner</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, sans-serif; }
@@ -71,7 +79,7 @@
     </div>
     <div class="header-actions">
       <button class="notify-btn" onclick="requestNotificationPermission()">🔔 Enable Phone Alerts</button>
-      <button class="test-btn" onclick="triggerTestNotification()">🧪 Test Alert (5s)</button>
+      <button class="test-btn" id="testBtn" onclick="triggerTestNotification()">🧪 Test Alert (1s)</button>
       <button class="reset-week-btn" onclick="resetWeek()">🔄 Reset Week</button>
     </div>
   </header>
@@ -112,7 +120,11 @@
     };
 
     if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('sw.js').catch(err => console.log('SW registration failed:', err));
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js', { scope: './' })
+          .then(reg => console.log('Service Worker Registered with scope:', reg.scope))
+          .catch(err => console.log('SW registration failed:', err));
+      });
     }
 
     function requestNotificationPermission() {
@@ -122,7 +134,7 @@
             alert('✅ Notifications enabled! Your phone will alert you when tasks are starting.');
             scheduleAllNotifications();
           } else {
-            alert('Permission denied. Please check your iPhone Settings > Notifications > DayPlan.');
+            alert('Permission denied. Please check your Settings > Notifications > DayPlan.');
           }
         });
       } else {
@@ -136,7 +148,8 @@
         return;
       }
 
-      alert('⏳ Test scheduled! Lock your phone or go to your home screen now. Notification fires in 5 seconds...');
+      const btn = document.getElementById('testBtn');
+      btn.textContent = "Sending in 1s...";
 
       if ('serviceWorker' in navigator) {
         navigator.serviceWorker.ready.then(reg => {
@@ -145,11 +158,16 @@
               type: 'SCHEDULE_NOTIFICATION',
               title: '🧪 DayPlan Test Notification',
               body: 'Success! Your notifications are fully working.',
-              delay: 5000
+              delay: 1000 // Reduced delay to 1000ms (1 second)
             });
           }
         });
       }
+
+      setTimeout(() => {
+        btn.textContent = "Sent ✓";
+        setTimeout(() => { btn.textContent = "🧪 Test Alert (1s)"; }, 2000);
+      }, 1000);
     }
 
     function scheduleAllNotifications() {
@@ -250,7 +268,7 @@
       const task = schedule[day][index];
       
       const newText = prompt("Edit Task Title:", task.text);
-      if (newText === null) return; // User canceled
+      if (newText === null) return;
       
       const newStartTime = prompt("Edit Start Time (HH:MM in 24-hr format, e.g., 14:30):", task.startTime || "");
       if (newStartTime === null) return;
